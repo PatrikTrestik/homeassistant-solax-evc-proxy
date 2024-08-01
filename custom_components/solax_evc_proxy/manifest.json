@@ -1,0 +1,13 @@
+{
+  "codeowners": [
+    "@PatrikTrestik"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/PatrikTrestik/homeassistant-solax-evc-proxy",
+  "issue_tracker": "https://github.com/PatrikTrestik/homeassistant-solax-evc-proxy/issues",
+  "domain": "solax_evc_proxy",
+  "iot_class": "local_polling",
+  "name": "SolaX EVC Proxy",
+  "version": "1.0.0"
+}
