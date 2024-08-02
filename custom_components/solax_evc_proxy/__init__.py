@@ -12,7 +12,7 @@ from .coordinator import SolaxProxyUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = []
+PLATFORMS = [Platform.SENSOR]
 
 
 async def config_entry_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -23,7 +23,7 @@ async def config_entry_update_listener(hass: HomeAssistant, entry: ConfigEntry) 
 async def async_setup(hass, config):
     """Set up the SolaX EVC proxy component."""
     hass.data[DOMAIN] = {}
-    _LOGGER.debug("solax data %d", hass.data)
+    _LOGGER.debug("solax data %s", hass.data[DOMAIN])
     return True
 
 

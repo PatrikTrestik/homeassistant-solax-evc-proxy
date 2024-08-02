@@ -32,6 +32,7 @@ class SolaxProxyUpdateCoordinator(DataUpdateCoordinator[None]):
         self._port = config.options.get(CONF_PORT, None)
         self._modbus_id = config.options.get(CONF_MODBUS_ADDR, None)
         self._inpuit_entity_id = config.options.get(CONF_ENTITY_ID, None)
+        self._input_value = 0
         self.plugin = plugin
         self.plugin.initialize(
             {"host": self._host, "port": self._port, "timeout": TIMEOUT}
@@ -51,7 +52,7 @@ class SolaxProxyUpdateCoordinator(DataUpdateCoordinator[None]):
             request_refresh_debouncer=Debouncer(
                 hass,
                 _LOGGER,
-                cooldown=timedelta(seconds=1),
+                cooldown=0.3,
                 immediate=False,
             ),
         )
@@ -63,39 +64,35 @@ class SolaxProxyUpdateCoordinator(DataUpdateCoordinator[None]):
 
     @callback
     def _async_on_change(self, event: Event[EventStateChangedData]) -> None:
-        entity_id = event.data["entity_id"]
-        old_state = event.data["old_state"]
+        # entity_id = event.data["entity_id"]
+        # old_state = event.data["old_state"]
         new_state = event.data["new_state"]
+        try:
+            num_state = int(float(new_state.state))
+            self._input_value = num_state
+            self.async_set_updated_data({})
+        except ValueError:
+            self._input_value = 0
 
     async def _async_update_data(self):
         """Write data to SolaX EVC."""
 
+        if self._input_value == 0:
+            return True
         try:
             # This timeout is only a safeguard against the modbus methods locking
             # up. The Modbus methods themselves have their own timeouts.
             async with asyncio.timeout(10 * TIMEOUT):
                 # Fetch updates
-                return await self.__async_get_data()
+                return await self._write_data(self._input_value)
 
         except SolaXProxyError as err:
             _LOGGER.exception("Writing data failed: %s", type(err).__qualname__)
             raise UpdateFailed(err) from err
 
-    async def __async_get_data(self) -> dict:
-        # Grab active context variables to limit data required to be fetched from API
-        # Note: using context is not required if there is no need or ability to limit
-        # data retrieved from API.
-        # contexts = self.async_contexts()
-        try:
-            pass
-        except Exception:
-            _LOGGER.exception("Something went wrong reading from API")
-
-        return {}
-
-    async def write_register(self, address, payload):
+    async def _write_data(self, payload: int):
         """Write register through plugin."""
-        descr = self.plugin.write_data(address, payload)
+        descr = await self.plugin.write_data(payload)
         if descr is None:
             return False
 

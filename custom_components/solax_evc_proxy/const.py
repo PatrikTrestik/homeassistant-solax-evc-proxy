@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 DOMAIN = "solax_evc_proxy"
 DEFAULT_NAME = "SolaX EVC Proxy"
+ATTR_MANUFACTURER = "SolaX"
 
 CONF_MODBUS_ADDR = "modbus_addr"
 
@@ -17,8 +18,8 @@ class plugin_base:
 
     plugin_name: str
 
-    async def initialize(self, data) -> None:
+    def initialize(self, data) -> None:
         """Initialize."""
 
-    async def write_data(self, address, payload) -> bool:
+    async def write_data(self, address: int, payload: int) -> bool:
         """Write data."""
