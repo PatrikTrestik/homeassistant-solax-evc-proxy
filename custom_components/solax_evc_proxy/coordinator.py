@@ -35,7 +35,12 @@ class SolaxProxyUpdateCoordinator(DataUpdateCoordinator[None]):
         self._input_value = 0
         self.plugin = plugin
         self.plugin.initialize(
-            {"host": self._host, "port": self._port, "timeout": TIMEOUT}
+            {
+                "host": self._host,
+                "port": self._port,
+                "timeout": TIMEOUT,
+                "modbus_id": self._modbus_id,
+            }
         )
 
         self.updateevent = async_track_state_change_event(
